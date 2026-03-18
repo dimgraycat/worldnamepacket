@@ -2,11 +2,13 @@ package pl.kosma.worldnamepacket;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class WorldNamePacket {
     private static final byte FORGE_PACKET_DISCRIMINATOR = 0;
     private static final byte VOXELMAP_MAGIC_NUMBER = 42;
     private static final byte VOXELMAP_FABRIC_REQUEST_PACKET[] = new byte[]{ 0, 0, 0, 42 };
+    private static final byte XAERO_WORLD_ID_PACKET_TYPE = 0;
     public static final String CHANNEL_NAME_VOXELMAP = "worldinfo:world_id";
     public static final String CHANNEL_NAME_XAEROMAP = "xaeroworldmap:main";
     private static final String HEX_DIGITS = "0123456789abcdef";
@@ -27,10 +29,7 @@ public class WorldNamePacket {
          *
          * Hell is other people's code.
          */
-        boolean useForgeDiscriminator = true;
-        if (requestBytes.equals(VOXELMAP_FABRIC_REQUEST_PACKET)) {
-            useForgeDiscriminator = false;
-        }
+        boolean useForgeDiscriminator = !Arrays.equals(requestBytes, VOXELMAP_FABRIC_REQUEST_PACKET);
 
         byte[] worldNameBytes = worldName.getBytes(StandardCharsets.UTF_8);
 
@@ -42,6 +41,23 @@ public class WorldNamePacket {
         responseStream.write(worldNameBytes, 0, worldNameBytes.length);
 
         return responseStream.toByteArray();
+    }
+
+    /**
+     * Xaero Map plugin message format.
+     * byte 0: packet type
+     * byte 1-4: world id (big-endian int)
+     */
+    public static byte[] formatXaeroResponsePacket(String worldName) {
+        int worldId = worldName.hashCode();
+
+        return new byte[]{
+                XAERO_WORLD_ID_PACKET_TYPE,
+                (byte) ((worldId >>> 24) & 0xff),
+                (byte) ((worldId >>> 16) & 0xff),
+                (byte) ((worldId >>> 8) & 0xff),
+                (byte) (worldId & 0xff)
+        };
     }
 
     /**

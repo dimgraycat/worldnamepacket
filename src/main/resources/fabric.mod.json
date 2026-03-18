@@ -5,6 +5,7 @@
   "name": "WorldNamePacket",
   "description": "Companion mod for client-side mapping mods",
   "authors": [
+    "dimgraycat <dimgray.cat@gmail.com>",
     "Kosma Moczek <kosma@kosma.pl>"
   ],
   "contact": {
@@ -24,7 +25,7 @@
   	"worldnamepacket.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.12.8",
-    "fabric": ">=0.28.5"
+    "fabricloader": ">=0.18.4",
+    "fabric": ">=0.141.3"
   }
 }

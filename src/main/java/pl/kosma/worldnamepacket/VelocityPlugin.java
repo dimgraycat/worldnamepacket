@@ -56,7 +56,12 @@ public class VelocityPlugin {
         if (serverConnection == null)
             return;
         String worldName = serverConnection.getServer().getServerInfo().getName();
-        byte[] responseBytes = WorldNamePacket.formatResponsePacket(bytes, worldName);
+        byte[] responseBytes;
+        if (channel.getId().contentEquals(WorldNamePacket.CHANNEL_NAME_XAEROMAP)) {
+            responseBytes = WorldNamePacket.formatXaeroResponsePacket(worldName);
+        } else {
+            responseBytes = WorldNamePacket.formatResponsePacket(bytes, worldName);
+        }
         this.logger.info("WorldNamePacket: ["+channel.getId()+"] sending worldName: " + worldName);
         player.sendPluginMessage(channel, responseBytes);
     }
