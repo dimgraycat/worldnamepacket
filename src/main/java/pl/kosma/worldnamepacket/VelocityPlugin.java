@@ -9,17 +9,22 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import org.slf4j.Logger;
 
+import java.util.concurrent.TimeUnit;
+
 
 @Plugin(id = "worldnamepacket",
-        name = "World Name Packet", version = "1.4.0",
+        name = "World Name Packet", version = "1.5.4",
         url = "https://www.curseforge.com/minecraft/mc-mods/worldnamepacket",
         description = "Server-side companion for mapping mods",
         authors = {"Kosmolot"})
 public class VelocityPlugin {
+    private static final long XAERO_SEND_DELAY_MILLIS = 100L;
+
     private final ProxyServer server;
     private final Logger logger;
 
@@ -48,7 +53,7 @@ public class VelocityPlugin {
 
     @Subscribe
     public void onServerConnected(ServerConnectedEvent event) {
-        sendWorldName(event.getPlayer(), channelIdentifierXaeromap, null);
+        scheduleXaeroWorldName(event.getPlayer(), event.getServer());
     }
 
     private void sendWorldName(Player player, ChannelIdentifier channel, byte[] bytes) {
@@ -64,5 +69,15 @@ public class VelocityPlugin {
         }
         this.logger.info("WorldNamePacket: ["+channel.getId()+"] sending worldName: " + worldName);
         player.sendPluginMessage(channel, responseBytes);
+    }
+
+    private void scheduleXaeroWorldName(Player player, RegisteredServer expectedServer) {
+        this.server.getScheduler().buildTask(this, () -> {
+            ServerConnection currentConnection = player.getCurrentServer().orElse(null);
+            if (currentConnection == null || !currentConnection.getServer().equals(expectedServer)) {
+                return;
+            }
+            sendWorldName(player, channelIdentifierXaeromap, null);
+        }).delay(XAERO_SEND_DELAY_MILLIS, TimeUnit.MILLISECONDS).schedule();
     }
 }
