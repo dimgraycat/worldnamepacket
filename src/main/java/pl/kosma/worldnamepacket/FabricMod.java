@@ -4,11 +4,10 @@ import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.server.dedicated.MinecraftDedicatedServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -36,9 +35,9 @@ public class FabricMod implements ModInitializer {
         ensureConfigExists();
         configuredWorldName = loadConfiguredWorldName();
 
-        PayloadTypeRegistry.playC2S().register(VoxelmapPayload.ID, VoxelmapPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(VoxelmapPayload.ID, VoxelmapPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(XaeroPayload.ID, XaeroPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(VoxelmapPayload.ID, VoxelmapPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(VoxelmapPayload.ID, VoxelmapPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(XaeroPayload.ID, XaeroPayload.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(VoxelmapPayload.ID, (payload, context) -> {
             sendResponse(context.player(), WorldNamePacket.CHANNEL_NAME_VOXELMAP, payload.data());
@@ -48,14 +47,14 @@ public class FabricMod implements ModInitializer {
     /**
      * Xaero's Map requires the world name to be send unprompted upon world join/change.
      */
-    public static void onServerWorldInfo(ServerPlayerEntity player) {
+    public static void onServerWorldInfo(ServerPlayer player) {
         sendResponse(player, WorldNamePacket.CHANNEL_NAME_XAEROMAP, null);
     }
 
-    private static void sendResponse(ServerPlayerEntity player, String channel, @Nullable byte[] requestBytes) {
+    private static void sendResponse(ServerPlayer player, String channel, @Nullable byte[] requestBytes) {
         String levelName = configuredWorldName;
         if (levelName == null || levelName.isEmpty()) {
-            levelName = ((MinecraftDedicatedServer) player.getEntityWorld().getServer()).getLevelName();
+            levelName = ((DedicatedServer) player.level().getServer()).getLevelIdName();
         }
 
         byte[] normalizedRequestBytes = (requestBytes != null) ? requestBytes : new byte[0];
@@ -192,30 +191,30 @@ public class FabricMod implements ModInitializer {
         return null;
     }
 
-    private record VoxelmapPayload(byte[] data) implements CustomPayload {
-        private static final Id<VoxelmapPayload> ID = new Id<>(Identifier.of(WorldNamePacket.CHANNEL_NAME_VOXELMAP));
-        private static final PacketCodec<ByteBuf, VoxelmapPayload> CODEC =
-                PacketCodec.ofStatic(
+    private record VoxelmapPayload(byte[] data) implements CustomPacketPayload {
+        private static final Type<VoxelmapPayload> ID = CustomPacketPayload.createType(WorldNamePacket.CHANNEL_NAME_VOXELMAP);
+        private static final StreamCodec<ByteBuf, VoxelmapPayload> CODEC =
+                StreamCodec.of(
                         (buf, payload) -> writeRemainingBytes(buf, payload.data()),
                         buf -> new VoxelmapPayload(readRemainingBytes(buf))
                 );
 
         @Override
-        public Id<? extends CustomPayload> getId() {
+        public Type<? extends CustomPacketPayload> type() {
             return ID;
         }
     }
 
-    private record XaeroPayload(byte[] data) implements CustomPayload {
-        private static final Id<XaeroPayload> ID = new Id<>(Identifier.of(WorldNamePacket.CHANNEL_NAME_XAEROMAP));
-        private static final PacketCodec<ByteBuf, XaeroPayload> CODEC =
-                PacketCodec.ofStatic(
+    private record XaeroPayload(byte[] data) implements CustomPacketPayload {
+        private static final Type<XaeroPayload> ID = CustomPacketPayload.createType(WorldNamePacket.CHANNEL_NAME_XAEROMAP);
+        private static final StreamCodec<ByteBuf, XaeroPayload> CODEC =
+                StreamCodec.of(
                         (buf, payload) -> writeRemainingBytes(buf, payload.data()),
                         buf -> new XaeroPayload(readRemainingBytes(buf))
                 );
 
         @Override
-        public Id<? extends CustomPayload> getId() {
+        public Type<? extends CustomPacketPayload> type() {
             return ID;
         }
     }

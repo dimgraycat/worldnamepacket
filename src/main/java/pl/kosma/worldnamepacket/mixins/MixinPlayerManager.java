@@ -5,16 +5,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import pl.kosma.worldnamepacket.FabricMod;
 
 
-@Mixin(PlayerManager.class)
+@Mixin(PlayerList.class)
 public class MixinPlayerManager {
-	@Inject(at = @At("HEAD"), method = "sendWorldInfo(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/server/world/ServerWorld;)V")
-	public void onSendWorldInfo(ServerPlayerEntity player, ServerWorld world, CallbackInfo info) {
+	@Inject(at = @At("HEAD"), method = "sendLevelInfo(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/level/ServerLevel;)V")
+	public void onSendWorldInfo(ServerPlayer player, ServerLevel world, CallbackInfo info) {
 		FabricMod.onServerWorldInfo(player);
 	}
 }

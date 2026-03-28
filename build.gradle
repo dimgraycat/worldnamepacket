@@ -1,11 +1,12 @@
 plugins {
-	id 'fabric-loom' version '1.15.5'
+	id 'net.fabricmc.fabric-loom' version '1.15.3'
 	id 'maven-publish'
 }
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	toolchain.languageVersion = JavaLanguageVersion.of(25)
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 base {
@@ -16,6 +17,7 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
+	maven { url = 'https://maven.fabricmc.net/' }
 	maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
 	maven { url 'https://repo.papermc.io/repository/maven-public/' }
 }
@@ -23,10 +25,9 @@ repositories {
 dependencies {
 	//to change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	compileOnly "org.spigotmc:spigot-api:${project.spigot_version}"
 
@@ -47,7 +48,7 @@ processResources {
 // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = "UTF-8"
-	options.release = 21
+	options.release = 25
 }
 
 jar {
