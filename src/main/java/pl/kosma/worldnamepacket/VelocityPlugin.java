@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @Plugin(id = "worldnamepacket",
-        name = "World Name Packet", version = "1.5.4",
+        name = "World Name Packet", version = "1.6.0",
         url = "https://www.curseforge.com/minecraft/mc-mods/worldnamepacket",
         description = "Server-side companion for mapping mods",
         authors = {"Kosmolot"})
