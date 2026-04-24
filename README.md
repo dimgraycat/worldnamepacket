@@ -1,7 +1,5 @@
 # WorldNamePacket
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y726QMH)
-
 Server-side companion for mapping mods. Automatically sets world name
 in Multiworld mode - no more manual configuration and "world not recognized"
 messages.

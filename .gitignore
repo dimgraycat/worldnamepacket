@@ -21,3 +21,5 @@ bin/
 run/
 
 *.launch
+
+tmp/*

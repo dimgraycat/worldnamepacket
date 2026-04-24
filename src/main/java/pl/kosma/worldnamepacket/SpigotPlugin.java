@@ -26,7 +26,12 @@ public class SpigotPlugin extends JavaPlugin implements Listener, PluginMessageL
 	
 	private void sendWorldName(Player player, String channel, byte[] bytes) {
 		String worldName = player.getWorld().getName();
-		byte[] responseBytes = WorldNamePacket.formatResponsePacket(bytes, worldName);
+		byte[] responseBytes;
+		if (channel.contentEquals(WorldNamePacket.CHANNEL_NAME_XAEROMAP)) {
+			responseBytes = WorldNamePacket.formatXaeroResponsePacket(worldName);
+		} else {
+			responseBytes = WorldNamePacket.formatResponsePacket(bytes, worldName);
+		}
 		this.getLogger().info("WorldNamePacket: ["+channel+"] sending levelName: " + worldName);
 		player.sendPluginMessage(this, channel, responseBytes);
 	}
