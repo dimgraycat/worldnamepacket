@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
@@ -192,7 +193,7 @@ public class FabricMod implements ModInitializer {
     }
 
     private record VoxelmapPayload(byte[] data) implements CustomPacketPayload {
-        private static final Type<VoxelmapPayload> ID = CustomPacketPayload.createType(WorldNamePacket.CHANNEL_NAME_VOXELMAP);
+        private static final Type<VoxelmapPayload> ID = new Type<>(Identifier.parse(WorldNamePacket.CHANNEL_NAME_VOXELMAP));
         private static final StreamCodec<ByteBuf, VoxelmapPayload> CODEC =
                 StreamCodec.of(
                         (buf, payload) -> writeRemainingBytes(buf, payload.data()),
@@ -206,7 +207,7 @@ public class FabricMod implements ModInitializer {
     }
 
     private record XaeroPayload(byte[] data) implements CustomPacketPayload {
-        private static final Type<XaeroPayload> ID = CustomPacketPayload.createType(WorldNamePacket.CHANNEL_NAME_XAEROMAP);
+        private static final Type<XaeroPayload> ID = new Type<>(Identifier.parse(WorldNamePacket.CHANNEL_NAME_XAEROMAP));
         private static final StreamCodec<ByteBuf, XaeroPayload> CODEC =
                 StreamCodec.of(
                         (buf, payload) -> writeRemainingBytes(buf, payload.data()),
